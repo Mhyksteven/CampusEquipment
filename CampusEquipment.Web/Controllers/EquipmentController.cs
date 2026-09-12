@@ -1,4 +1,5 @@
-﻿using CampusEquipment.Core.Services;
+﻿using CampusEquipment.Core.DTOs;
+using CampusEquipment.Core.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -17,6 +18,8 @@ namespace CampusEquipment.Web.Controllers
             _departmentService = departmentService;
         }
 
+        // PART 22 + PART 23
+        // Equipment list, search, and filters
         public async Task<IActionResult> Index(
             string? search,
             string? category,
@@ -71,6 +74,70 @@ namespace CampusEquipment.Web.Controllers
                     departmentId);
 
             return View(equipment);
+        }
+
+        // PART 24
+        // Display Create Equipment form
+        [HttpGet]
+        public async Task<IActionResult> Create()
+        {
+            await LoadDepartmentsAsync();
+
+            var dto = new CreateEquipmentDto
+            {
+                Status = "Available"
+            };
+
+            return View(dto);
+        }
+
+        // PART 24 + PART 25
+        // Save new equipment
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(
+            CreateEquipmentDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                await LoadDepartmentsAsync(dto.DepartmentId);
+
+                return View(dto);
+            }
+
+            try
+            {
+                await _equipmentService.CreateAsync(dto);
+
+                TempData["SuccessMessage"] =
+                    "Equipment created successfully.";
+
+                return RedirectToAction(nameof(Index));
+            }
+            catch (InvalidOperationException ex)
+            {
+                ModelState.AddModelError(
+                    string.Empty,
+                    ex.Message);
+
+                await LoadDepartmentsAsync(dto.DepartmentId);
+
+                return View(dto);
+            }
+        }
+
+        private async Task LoadDepartmentsAsync(
+            int? selectedDepartmentId = null)
+        {
+            var departments =
+                await _departmentService.GetAllAsync();
+
+            ViewBag.Departments =
+                new SelectList(
+                    departments,
+                    "DepartmentId",
+                    "Name",
+                    selectedDepartmentId);
         }
     }
 }

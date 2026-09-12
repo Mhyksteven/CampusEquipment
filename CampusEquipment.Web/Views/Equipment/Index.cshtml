@@ -6,6 +6,13 @@
 
 <h1>Campus Equipment</h1>
 
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
 <p>
     <a asp-action="Create"
            class="btn btn-primary">
