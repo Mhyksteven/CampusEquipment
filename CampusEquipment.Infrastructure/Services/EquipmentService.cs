@@ -85,35 +85,12 @@ namespace CampusEquipment.Infrastructure.Services
         public async Task<EquipmentDto> CreateAsync(
             CreateEquipmentDto dto)
         {
-            if (string.IsNullOrWhiteSpace(dto.AssetCode))
-            {
-                throw new InvalidOperationException(
-                    "Asset Code is required.");
-            }
-
-            if (string.IsNullOrWhiteSpace(dto.Name))
-            {
-                throw new InvalidOperationException(
-                    "Equipment Name is required.");
-            }
-
-            if (string.IsNullOrWhiteSpace(dto.Category))
-            {
-                throw new InvalidOperationException(
-                    "Category is required.");
-            }
-
-            if (string.IsNullOrWhiteSpace(dto.Status))
-            {
-                throw new InvalidOperationException(
-                    "Status is required.");
-            }
-
-            if (dto.DepartmentId <= 0)
-            {
-                throw new InvalidOperationException(
-                    "A valid Department is required.");
-            }
+            ValidateRequiredFields(
+                dto.AssetCode,
+                dto.Name,
+                dto.Category,
+                dto.Status,
+                dto.DepartmentId);
 
             var assetCodeExists =
                 await _equipmentRepository.AssetCodeExistsAsync(
@@ -142,43 +119,20 @@ namespace CampusEquipment.Infrastructure.Services
             int id,
             UpdateEquipmentDto dto)
         {
-            var equipment =
+            var existingEquipment =
                 await _equipmentRepository.GetByIdAsync(id);
 
-            if (equipment == null)
+            if (existingEquipment == null)
             {
                 return false;
             }
 
-            if (string.IsNullOrWhiteSpace(dto.AssetCode))
-            {
-                throw new InvalidOperationException(
-                    "Asset Code is required.");
-            }
-
-            if (string.IsNullOrWhiteSpace(dto.Name))
-            {
-                throw new InvalidOperationException(
-                    "Equipment Name is required.");
-            }
-
-            if (string.IsNullOrWhiteSpace(dto.Category))
-            {
-                throw new InvalidOperationException(
-                    "Category is required.");
-            }
-
-            if (string.IsNullOrWhiteSpace(dto.Status))
-            {
-                throw new InvalidOperationException(
-                    "Status is required.");
-            }
-
-            if (dto.DepartmentId <= 0)
-            {
-                throw new InvalidOperationException(
-                    "A valid Department is required.");
-            }
+            ValidateRequiredFields(
+                dto.AssetCode,
+                dto.Name,
+                dto.Category,
+                dto.Status,
+                dto.DepartmentId);
 
             var assetCodeExists =
                 await _equipmentRepository.AssetCodeExistsAsync(
@@ -201,6 +155,30 @@ namespace CampusEquipment.Infrastructure.Services
                     "The selected department does not exist.");
             }
 
+            if (string.Equals(
+                    dto.Status,
+                    "Assigned",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                if (string.Equals(
+                        existingEquipment.Status,
+                        "Retired",
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    throw new InvalidOperationException(
+                        "Retired equipment cannot be assigned.");
+                }
+
+                if (string.Equals(
+                        existingEquipment.Status,
+                        "UnderMaintenance",
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    throw new InvalidOperationException(
+                        "Equipment under maintenance cannot be assigned.");
+                }
+            }
+
             return await _equipmentRepository.UpdateAsync(
                 id,
                 dto);
@@ -217,6 +195,44 @@ namespace CampusEquipment.Infrastructure.Services
             }
 
             return await _equipmentRepository.DeleteAsync(id);
+        }
+
+        private static void ValidateRequiredFields(
+            string assetCode,
+            string name,
+            string category,
+            string status,
+            int departmentId)
+        {
+            if (string.IsNullOrWhiteSpace(assetCode))
+            {
+                throw new InvalidOperationException(
+                    "Asset Code is required.");
+            }
+
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new InvalidOperationException(
+                    "Equipment Name is required.");
+            }
+
+            if (string.IsNullOrWhiteSpace(category))
+            {
+                throw new InvalidOperationException(
+                    "Category is required.");
+            }
+
+            if (string.IsNullOrWhiteSpace(status))
+            {
+                throw new InvalidOperationException(
+                    "Status is required.");
+            }
+
+            if (departmentId <= 0)
+            {
+                throw new InvalidOperationException(
+                    "A valid Department is required.");
+            }
         }
     }
 }

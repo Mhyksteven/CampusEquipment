@@ -18,7 +18,6 @@ namespace CampusEquipment.Web.Controllers
             _departmentService = departmentService;
         }
 
-        // PART 22 + PART 23
         public async Task<IActionResult> Index(
             string? search,
             string? category,
@@ -56,14 +55,10 @@ namespace CampusEquipment.Web.Controllers
             ViewBag.Search = search;
 
             ViewBag.Categories =
-                new SelectList(
-                    categories,
-                    category);
+                new SelectList(categories, category);
 
             ViewBag.Statuses =
-                new SelectList(
-                    statuses,
-                    status);
+                new SelectList(statuses, status);
 
             ViewBag.Departments =
                 new SelectList(
@@ -75,21 +70,30 @@ namespace CampusEquipment.Web.Controllers
             return View(equipment);
         }
 
-        // PART 24
+        public async Task<IActionResult> Details(int id)
+        {
+            var equipment =
+                await _equipmentService.GetByIdAsync(id);
+
+            if (equipment == null)
+            {
+                return NotFound();
+            }
+
+            return View(equipment);
+        }
+
         [HttpGet]
         public async Task<IActionResult> Create()
         {
             await LoadDepartmentsAsync();
 
-            var dto = new CreateEquipmentDto
+            return View(new CreateEquipmentDto
             {
                 Status = "Available"
-            };
-
-            return View(dto);
+            });
         }
 
-        // PART 24 + PART 25
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(
@@ -123,8 +127,9 @@ namespace CampusEquipment.Web.Controllers
             }
         }
 
-        // PART 26
-        public async Task<IActionResult> Details(int id)
+        // PART 27 - Edit form
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
         {
             var equipment =
                 await _equipmentService.GetByIdAsync(id);
@@ -134,7 +139,69 @@ namespace CampusEquipment.Web.Controllers
                 return NotFound();
             }
 
-            return View(equipment);
+            var dto = new UpdateEquipmentDto
+            {
+                AssetCode = equipment.AssetCode,
+                Name = equipment.Name,
+                Category = equipment.Category,
+                Brand = equipment.Brand,
+                Model = equipment.Model,
+                PurchaseDate = equipment.PurchaseDate,
+                Status = equipment.Status,
+                DepartmentId = equipment.DepartmentId
+            };
+
+            ViewBag.EquipmentId = id;
+
+            await LoadDepartmentsAsync(
+                equipment.DepartmentId);
+
+            return View(dto);
+        }
+
+        // PART 27 - Save changes
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(
+            int id,
+            UpdateEquipmentDto dto)
+        {
+            ViewBag.EquipmentId = id;
+
+            if (!ModelState.IsValid)
+            {
+                await LoadDepartmentsAsync(dto.DepartmentId);
+
+                return View(dto);
+            }
+
+            try
+            {
+                var updated =
+                    await _equipmentService.UpdateAsync(
+                        id,
+                        dto);
+
+                if (!updated)
+                {
+                    return NotFound();
+                }
+
+                TempData["SuccessMessage"] =
+                    "Equipment updated successfully.";
+
+                return RedirectToAction(nameof(Index));
+            }
+            catch (InvalidOperationException ex)
+            {
+                ModelState.AddModelError(
+                    string.Empty,
+                    ex.Message);
+
+                await LoadDepartmentsAsync(dto.DepartmentId);
+
+                return View(dto);
+            }
         }
 
         private async Task LoadDepartmentsAsync(
