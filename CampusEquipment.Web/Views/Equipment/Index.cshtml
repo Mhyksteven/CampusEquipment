@@ -1,0 +1,68 @@
+﻿@model IEnumerable<CampusEquipment.Core.DTOs.EquipmentDto>
+
+@{
+    ViewData["Title"] = "Equipment";
+}
+
+<h1>Campus Equipment</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">
+        Add Equipment
+    </a>
+</p>
+
+<table class="table table-striped table-bordered">
+    <thead>
+        <tr>
+            <th>Asset Code</th>
+            <th>Equipment Name</th>
+            <th>Category</th>
+            <th>Brand</th>
+            <th>Model</th>
+            <th>Status</th>
+            <th>Department</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @if (!Model.Any())
+        {
+            <tr>
+                <td colspan="8" class="text-center">
+                    No equipment found.
+                </td>
+            </tr>
+        }
+        else
+        {
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.AssetCode</td>
+                    <td>@item.Name</td>
+                    <td>@item.Category</td>
+                    <td>@(item.Brand ?? "-")</td>
+                    <td>@(item.Model ?? "-")</td>
+                    <td>@item.Status</td>
+                    <td>@item.DepartmentName</td>
+
+                    <td>
+                        <a asp-action="Details"
+                           asp-route-id="@item.EquipmentId"
+                           class="btn btn-sm btn-info">
+                            Details
+                        </a>
+
+                        <a asp-action="Edit"
+                           asp-route-id="@item.EquipmentId"
+                           class="btn btn-sm btn-warning">
+                            Edit
+                        </a>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
