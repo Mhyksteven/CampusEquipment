@@ -24,8 +24,4 @@
     <ProjectReference Include="..\CampusEquipment.Core\CampusEquipment.Core.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Repositories\" />
-  </ItemGroup>
-
 </Project>
