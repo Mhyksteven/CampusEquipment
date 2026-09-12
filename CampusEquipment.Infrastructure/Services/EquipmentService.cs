@@ -184,6 +184,9 @@ namespace CampusEquipment.Infrastructure.Services
                 dto);
         }
 
+        // PART 28
+        // Soft delete: change status to Retired
+        // instead of removing the database record.
         public async Task<bool> DeleteAsync(int id)
         {
             var equipment =
@@ -194,7 +197,30 @@ namespace CampusEquipment.Infrastructure.Services
                 return false;
             }
 
-            return await _equipmentRepository.DeleteAsync(id);
+            // Already retired, no need to change it again.
+            if (string.Equals(
+                    equipment.Status,
+                    "Retired",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            var dto = new UpdateEquipmentDto
+            {
+                AssetCode = equipment.AssetCode,
+                Name = equipment.Name,
+                Category = equipment.Category,
+                Brand = equipment.Brand,
+                Model = equipment.Model,
+                PurchaseDate = equipment.PurchaseDate,
+                Status = "Retired",
+                DepartmentId = equipment.DepartmentId
+            };
+
+            return await _equipmentRepository.UpdateAsync(
+                id,
+                dto);
         }
 
         private static void ValidateRequiredFields(

@@ -25,9 +25,7 @@
       class="row g-3 mb-4">
 
     <div class="col-md-3">
-        <label class="form-label">
-            Search
-        </label>
+        <label class="form-label">Search</label>
 
         <input type="text"
                name="search"
@@ -37,47 +35,32 @@
     </div>
 
     <div class="col-md-2">
-        <label class="form-label">
-            Category
-        </label>
+        <label class="form-label">Category</label>
 
         <select name="category"
                 asp-items="ViewBag.Categories"
                 class="form-select">
-
-            <option value="">
-                All Categories
-            </option>
+            <option value="">All Categories</option>
         </select>
     </div>
 
     <div class="col-md-2">
-        <label class="form-label">
-            Status
-        </label>
+        <label class="form-label">Status</label>
 
         <select name="status"
                 asp-items="ViewBag.Statuses"
                 class="form-select">
-
-            <option value="">
-                All Statuses
-            </option>
+            <option value="">All Statuses</option>
         </select>
     </div>
 
     <div class="col-md-3">
-        <label class="form-label">
-            Department
-        </label>
+        <label class="form-label">Department</label>
 
         <select name="departmentId"
                 asp-items="ViewBag.Departments"
                 class="form-select">
-
-            <option value="">
-                All Departments
-            </option>
+            <option value="">All Departments</option>
         </select>
     </div>
 
@@ -114,9 +97,7 @@
             <tr>
                 <td colspan="8"
                     class="text-center">
-
                     No equipment found.
-
                 </td>
             </tr>
         }
@@ -145,6 +126,21 @@
                                class="btn btn-sm btn-warning">
                             Edit
                         </a>
+
+                        @if (item.Status != "Retired")
+                        {
+                            <form asp-action="Retire"
+                                  asp-route-id="@item.EquipmentId"
+                                  method="post"
+                                  class="d-inline"
+                                  onsubmit="return confirm('Are you sure you want to retire this equipment?');">
+
+                                <button type="submit"
+                                        class="btn btn-sm btn-danger">
+                                    Retire
+                                </button>
+                            </form>
+                        }
                     </td>
                 </tr>
             }

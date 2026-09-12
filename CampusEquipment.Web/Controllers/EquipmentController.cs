@@ -55,10 +55,14 @@ namespace CampusEquipment.Web.Controllers
             ViewBag.Search = search;
 
             ViewBag.Categories =
-                new SelectList(categories, category);
+                new SelectList(
+                    categories,
+                    category);
 
             ViewBag.Statuses =
-                new SelectList(statuses, status);
+                new SelectList(
+                    statuses,
+                    status);
 
             ViewBag.Departments =
                 new SelectList(
@@ -127,7 +131,6 @@ namespace CampusEquipment.Web.Controllers
             }
         }
 
-        // PART 27 - Edit form
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
@@ -159,7 +162,6 @@ namespace CampusEquipment.Web.Controllers
             return View(dto);
         }
 
-        // PART 27 - Save changes
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(
@@ -202,6 +204,25 @@ namespace CampusEquipment.Web.Controllers
 
                 return View(dto);
             }
+        }
+
+        // PART 28
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Retire(int id)
+        {
+            var retired =
+                await _equipmentService.DeleteAsync(id);
+
+            if (!retired)
+            {
+                return NotFound();
+            }
+
+            TempData["SuccessMessage"] =
+                "Equipment retired successfully.";
+
+            return RedirectToAction(nameof(Index));
         }
 
         private async Task LoadDepartmentsAsync(
