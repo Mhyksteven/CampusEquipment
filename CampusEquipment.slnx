@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/Database/">
+    <File Path="../../../Documents/CampusEquipmentDb.sql" />
+  </Folder>
   <Project Path="CampusEquipment.API/CampusEquipment.API.csproj" />
   <Project Path="CampusEquipment.Core/CampusEquipment.Core.csproj" />
   <Project Path="CampusEquipment.Infrastructure/CampusEquipment.Infrastructure.csproj" />
