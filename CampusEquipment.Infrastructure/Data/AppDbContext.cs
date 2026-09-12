@@ -1,4 +1,6 @@
-﻿using CampusEquipment.Infrastructure.Entities;
+﻿using System;
+using System.Collections.Generic;
+using CampusEquipment.Infrastructure.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace CampusEquipment.Infrastructure.Data;
@@ -18,17 +20,14 @@ public partial class AppDbContext : DbContext
     {
         modelBuilder.Entity<Department>(entity =>
         {
-            entity.HasKey(e => e.DepartmentId)
-                .HasName("PK__Departme__B2079BED5868DB8F");
+            entity.HasKey(e => e.DepartmentId).HasName("PK__Departme__B2079BEDEA2A134C");
         });
 
         modelBuilder.Entity<Equipment>(entity =>
         {
-            entity.HasKey(e => e.EquipmentId)
-                .HasName("PK__Equipmen__344744796270E54F");
+            entity.HasKey(e => e.EquipmentId).HasName("PK__Equipmen__344744799173F49C");
 
-            entity.HasOne(d => d.Department)
-                .WithMany(p => p.Equipment)
+            entity.HasOne(d => d.Department).WithMany(p => p.Equipment)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Equipment_Department");
         });
