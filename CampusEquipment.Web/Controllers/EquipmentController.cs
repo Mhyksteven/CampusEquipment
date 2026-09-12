@@ -19,7 +19,6 @@ namespace CampusEquipment.Web.Controllers
         }
 
         // PART 22 + PART 23
-        // Equipment list, search, and filters
         public async Task<IActionResult> Index(
             string? search,
             string? category,
@@ -77,7 +76,6 @@ namespace CampusEquipment.Web.Controllers
         }
 
         // PART 24
-        // Display Create Equipment form
         [HttpGet]
         public async Task<IActionResult> Create()
         {
@@ -92,7 +90,6 @@ namespace CampusEquipment.Web.Controllers
         }
 
         // PART 24 + PART 25
-        // Save new equipment
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(
@@ -124,6 +121,20 @@ namespace CampusEquipment.Web.Controllers
 
                 return View(dto);
             }
+        }
+
+        // PART 26
+        public async Task<IActionResult> Details(int id)
+        {
+            var equipment =
+                await _equipmentService.GetByIdAsync(id);
+
+            if (equipment == null)
+            {
+                return NotFound();
+            }
+
+            return View(equipment);
         }
 
         private async Task LoadDepartmentsAsync(
