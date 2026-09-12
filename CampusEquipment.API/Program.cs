@@ -1,3 +1,4 @@
+using CampusEquipment.API.Middleware;
 using CampusEquipment.Core.Repositories;
 using CampusEquipment.Core.Services;
 using CampusEquipment.Infrastructure.Data;
@@ -7,45 +8,59 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add controllers
+// ============================================================
+// SERVICES
+// ============================================================
+
 builder.Services.AddControllers();
 
-// Swagger / OpenAPI
 builder.Services.AddEndpointsApiExplorer();
+
 builder.Services.AddSwaggerGen();
 
-// Database
+// ============================================================
+// DATABASE
+// ============================================================
+
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(
-        builder.Configuration.GetConnectionString(
-            "DefaultConnection")));
+        builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Repositories
-builder.Services.AddScoped<
-    IEquipmentRepository,
-    EquipmentRepository>();
+// ============================================================
+// DEPENDENCY INJECTION
+// ============================================================
 
-builder.Services.AddScoped<
-    IDepartmentRepository,
-    DepartmentRepository>();
+builder.Services.AddScoped<IEquipmentRepository, EquipmentRepository>();
+builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
 
-// Services
-builder.Services.AddScoped<
-    IEquipmentService,
-    EquipmentService>();
+builder.Services.AddScoped<IEquipmentService, EquipmentService>();
+builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 
-builder.Services.AddScoped<
-    IDepartmentService,
-    DepartmentService>();
+// ============================================================
+// BUILD APPLICATION
+// ============================================================
 
 var app = builder.Build();
 
-// Swagger only during development
+// ============================================================
+// SWAGGER
+// ============================================================
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+// ============================================================
+// GLOBAL EXCEPTION HANDLING
+// ============================================================
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
+
+// ============================================================
+// HTTP PIPELINE
+// ============================================================
 
 app.UseHttpsRedirection();
 
@@ -53,14 +68,8 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-
-    Console.WriteLine("=================================");
-    Console.WriteLine($"API SERVER: {db.Database.GetDbConnection().DataSource}");
-    Console.WriteLine($"API DATABASE: {db.Database.GetDbConnection().Database}");
-    Console.WriteLine("=================================");
-}
+// ============================================================
+// RUN APPLICATION
+// ============================================================
 
 app.Run();

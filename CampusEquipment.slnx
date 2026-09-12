@@ -1,6 +1,6 @@
 <Solution>
   <Folder Name="/Database/">
-    <File Path="../../../Documents/CampusEquipmentDb.sql" />
+    <File Path="Database/CampusEquipmentDb.sql" />
   </Folder>
   <Project Path="CampusEquipment.API/CampusEquipment.API.csproj" />
   <Project Path="CampusEquipment.Core/CampusEquipment.Core.csproj" />

@@ -1,81 +1,115 @@
-CREATE DATABASE CampusEquipmentDb;
+/* ============================================================
+   Campus Equipment Management System
+   Database: CampusEquipmentDb
+   Database-First SQL Script
+   ============================================================ */
+
+USE master;
+GO
+
+/* ============================================================
+   CREATE DATABASE IF IT DOES NOT EXIST
+   ============================================================ */
+
+IF DB_ID('CampusEquipmentDb') IS NULL
+BEGIN
+    CREATE DATABASE CampusEquipmentDb;
+END
 GO
 
 USE CampusEquipmentDb;
 GO
 
-USE CampusEquipmentDb;
+/* ============================================================
+   DROP EXISTING TABLES
+   ============================================================ */
+
+IF OBJECT_ID('dbo.Equipment', 'U') IS NOT NULL
+BEGIN
+    DROP TABLE dbo.Equipment;
+END
 GO
 
-CREATE TABLE Department
+IF OBJECT_ID('dbo.Department', 'U') IS NOT NULL
+BEGIN
+    DROP TABLE dbo.Department;
+END
+GO
+
+/* ============================================================
+   DEPARTMENT TABLE
+   ============================================================ */
+
+CREATE TABLE dbo.Department
 (
-    DepartmentId INT IDENTITY(1,1) PRIMARY KEY,
+    DepartmentId INT IDENTITY(1,1) NOT NULL,
     Name NVARCHAR(100) NOT NULL,
-    Description NVARCHAR(255) NULL
+
+    CONSTRAINT PK_Department
+        PRIMARY KEY (DepartmentId),
+
+    CONSTRAINT UQ_Department_Name
+        UNIQUE (Name)
 );
 GO
 
+/* ============================================================
+   EQUIPMENT TABLE
+   ============================================================ */
 
-CREATE TABLE Equipment
+CREATE TABLE dbo.Equipment
 (
-    EquipmentId INT IDENTITY(1,1) PRIMARY KEY,
-
+    EquipmentId INT IDENTITY(1,1) NOT NULL,
     AssetCode NVARCHAR(50) NOT NULL,
-
-    Name NVARCHAR(100) NOT NULL,
-
+    Name NVARCHAR(150) NOT NULL,
     Category NVARCHAR(100) NOT NULL,
-
     Brand NVARCHAR(100) NULL,
-
     Model NVARCHAR(100) NULL,
-
     PurchaseDate DATE NULL,
-
-    Status NVARCHAR(50) NOT NULL,
-
+    Status NVARCHAR(30) NOT NULL,
     DepartmentId INT NOT NULL,
+
+    CONSTRAINT PK_Equipment
+        PRIMARY KEY (EquipmentId),
 
     CONSTRAINT UQ_Equipment_AssetCode
         UNIQUE (AssetCode),
 
     CONSTRAINT FK_Equipment_Department
         FOREIGN KEY (DepartmentId)
-        REFERENCES Department(DepartmentId)
+        REFERENCES dbo.Department(DepartmentId),
+
+    CONSTRAINT CK_Equipment_Status
+        CHECK
+        (
+            Status IN
+            (
+                'Available',
+                'Assigned',
+                'UnderMaintenance',
+                'Retired'
+            )
+        )
 );
 GO
 
+/* ============================================================
+   SAMPLE DEPARTMENTS
+   ============================================================ */
 
-
-
-INSERT INTO Department
-(
-    Name,
-    Description
-)
+INSERT INTO dbo.Department (Name)
 VALUES
-(
-    'Information Technology',
-    'Information Technology Department'
-),
-(
-    'Computer Science',
-    'Computer Science Department'
-),
-(
-    'Engineering',
-    'Engineering Department'
-),
-(
-    'Business Administration',
-    'Business Administration Department'
-);
+    ('Information Technology'),
+    ('Computer Science'),
+    ('Engineering'),
+    ('Business Administration');
 GO
 
+/* ============================================================
+   SAMPLE EQUIPMENT
+   ============================================================ */
 
-
-
-INSERT INTO Equipment
+INSERT INTO dbo.Equipment
 (
     AssetCode,
     Name,
@@ -139,21 +173,27 @@ VALUES
 );
 GO
 
-
-
-
-
+/* ============================================================
+   VERIFICATION
+   ============================================================ */
 
 SELECT
-    e.EquipmentId,
-    e.AssetCode,
-    e.Name,
-    e.Category,
-    e.Brand,
-    e.Model,
-    e.PurchaseDate,
-    e.Status,
-    d.Name AS Department
-FROM Equipment e
-INNER JOIN Department d
-    ON e.DepartmentId = d.DepartmentId;
+    DepartmentId,
+    Name
+FROM dbo.Department
+ORDER BY DepartmentId;
+GO
+
+SELECT
+    EquipmentId,
+    AssetCode,
+    Name,
+    Category,
+    Brand,
+    Model,
+    PurchaseDate,
+    Status,
+    DepartmentId
+FROM dbo.Equipment
+ORDER BY EquipmentId;
+GO
