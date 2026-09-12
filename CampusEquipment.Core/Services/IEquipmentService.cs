@@ -6,6 +6,12 @@ namespace CampusEquipment.Core.Services
     {
         Task<IEnumerable<EquipmentDto>> GetAllAsync();
 
+        Task<IEnumerable<EquipmentDto>> GetFilteredAsync(
+            string? search,
+            string? category,
+            string? status,
+            int? departmentId);
+
         Task<EquipmentDto?> GetByIdAsync(int id);
 
         Task<EquipmentDto> CreateAsync(CreateEquipmentDto dto);

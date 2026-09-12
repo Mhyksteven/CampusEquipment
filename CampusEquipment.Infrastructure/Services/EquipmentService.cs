@@ -22,12 +22,68 @@ namespace CampusEquipment.Infrastructure.Services
             return await _equipmentRepository.GetAllAsync();
         }
 
+        public async Task<IEnumerable<EquipmentDto>> GetFilteredAsync(
+            string? search,
+            string? category,
+            string? status,
+            int? departmentId)
+        {
+            var equipment =
+                await _equipmentRepository.GetAllAsync();
+
+            var query = equipment.AsEnumerable();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(e =>
+                    e.AssetCode.Contains(
+                        search,
+                        StringComparison.OrdinalIgnoreCase) ||
+
+                    e.Name.Contains(
+                        search,
+                        StringComparison.OrdinalIgnoreCase) ||
+
+                    (e.Brand != null &&
+                     e.Brand.Contains(
+                         search,
+                         StringComparison.OrdinalIgnoreCase)));
+            }
+
+            if (!string.IsNullOrWhiteSpace(category))
+            {
+                query = query.Where(e =>
+                    string.Equals(
+                        e.Category,
+                        category,
+                        StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (!string.IsNullOrWhiteSpace(status))
+            {
+                query = query.Where(e =>
+                    string.Equals(
+                        e.Status,
+                        status,
+                        StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (departmentId.HasValue)
+            {
+                query = query.Where(
+                    e => e.DepartmentId == departmentId.Value);
+            }
+
+            return query.ToList();
+        }
+
         public async Task<EquipmentDto?> GetByIdAsync(int id)
         {
             return await _equipmentRepository.GetByIdAsync(id);
         }
 
-        public async Task<EquipmentDto> CreateAsync(CreateEquipmentDto dto)
+        public async Task<EquipmentDto> CreateAsync(
+            CreateEquipmentDto dto)
         {
             if (string.IsNullOrWhiteSpace(dto.AssetCode))
             {
@@ -60,7 +116,8 @@ namespace CampusEquipment.Infrastructure.Services
             }
 
             var assetCodeExists =
-                await _equipmentRepository.AssetCodeExistsAsync(dto.AssetCode);
+                await _equipmentRepository.AssetCodeExistsAsync(
+                    dto.AssetCode);
 
             if (assetCodeExists)
             {
@@ -69,7 +126,8 @@ namespace CampusEquipment.Infrastructure.Services
             }
 
             var departmentExists =
-                await _departmentRepository.ExistsAsync(dto.DepartmentId);
+                await _departmentRepository.ExistsAsync(
+                    dto.DepartmentId);
 
             if (!departmentExists)
             {
@@ -84,7 +142,8 @@ namespace CampusEquipment.Infrastructure.Services
             int id,
             UpdateEquipmentDto dto)
         {
-            var equipment = await _equipmentRepository.GetByIdAsync(id);
+            var equipment =
+                await _equipmentRepository.GetByIdAsync(id);
 
             if (equipment == null)
             {
@@ -133,7 +192,8 @@ namespace CampusEquipment.Infrastructure.Services
             }
 
             var departmentExists =
-                await _departmentRepository.ExistsAsync(dto.DepartmentId);
+                await _departmentRepository.ExistsAsync(
+                    dto.DepartmentId);
 
             if (!departmentExists)
             {
@@ -141,12 +201,15 @@ namespace CampusEquipment.Infrastructure.Services
                     "The selected department does not exist.");
             }
 
-            return await _equipmentRepository.UpdateAsync(id, dto);
+            return await _equipmentRepository.UpdateAsync(
+                id,
+                dto);
         }
 
         public async Task<bool> DeleteAsync(int id)
         {
-            var equipment = await _equipmentRepository.GetByIdAsync(id);
+            var equipment =
+                await _equipmentRepository.GetByIdAsync(id);
 
             if (equipment == null)
             {

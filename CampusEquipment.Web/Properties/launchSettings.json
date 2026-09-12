@@ -17,6 +17,10 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
+      "git",
+      "push",
+      "-u" "origin",
+      "feature/partner-part22-42"
     },
     "https": {
       "commandName": "Project",
